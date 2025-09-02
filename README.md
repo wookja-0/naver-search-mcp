@@ -33,6 +33,7 @@ docker push "$IMAGE_BASE"
 
 ### 2-2. SSE 프록시 이미지 (stdio ↔ SSE 변환 포함)
 
+#### Dockerfile.sse Base Image 부분에 실제 IMAGE_BASE 이미지로 변경
 ```bash
 docker build -f Dockerfile.sse -t "$IMAGE_SSE" . --network host
 docker push "$IMAGE_SSE"
