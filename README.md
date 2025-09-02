@@ -1,417 +1,117 @@
-# Naver Search MCP Server
+# Naver Search MCP (K8s + SSE Proxy)
+**Author:** Jung Wookjin
 
-[![한국어](https://img.shields.io/badge/한국어-README-yellow)](README-ko.md)
+네이버 검색/DataLab API를 **MCP 서버**로 제공하고, Kubernetes에서 **SSE(HTTP) 엔드포인트**로 노출하는 가이드입니다.  
+백엔드는 `transport="sse"`로 `/sse`에 연결합니다.
 
-[![Trust Score](https://archestra.ai/mcp-catalog/api/badge/quality/isnow890/naver-search-mcp)](https://archestra.ai/mcp-catalog/isnow890__naver-search-mcp)
-[![smithery badge](https://smithery.ai/badge/@isnow890/naver-search-mcp)](https://smithery.ai/server/@isnow890/naver-search-mcp)
-[![MCP.so](https://img.shields.io/badge/MCP.so-Naver%20Search%20MCP-blue)](https://mcp.so/server/naver-search-mcp/isnow890)
-
-MCP server for Naver Search API and DataLab API integration, enabling comprehensive search across various Naver services and data trend analysis.
-
-> ⚠️ **Smithery Installation Notice**: Due to compatibility issues with the Smithery platform, **npx installation is recommended starting from version 1.0.40**. Smithery installation is only supported up to version 1.0.30.
-
-#### Version History
-
-###### 1.0.44 (2025-08-31)
-
-- `get_current_korean_time` tool added - Essential time context tool for Korean timezone
-- Enhanced all existing tool descriptions to reference time tool for temporal queries
-- Improved temporal context handling for "today", "now", "current" searches
-- Comprehensive Korean time formatting with multiple output formats
-
-###### 1.0.4 (2025-08-21)
-
-- `find_category` tool added - with fuzzy matching and ranking system support
-- Enhanced parameter validation with Zod schema
-- Improved category search workflow
-
-###### 1.0.30 (2025-08-04)
-
-- MCP SDK upgraded to 1.17.1
-- Fixed compatibility issues with Smithery specification changes
-- Added comprehensive DataLab shopping category code documentation
-
-###### 1.0.2 (2025-04-26)
-
-- README updated: cafe article search tool and version history section improved
-
-###### 1.0.1 (2025-04-26)
-
-- Cafe article search feature added
-- Shopping category info added to zod
-- Source code refactored
-
-###### 1.0.0 (2025-04-08)
-
-- Initial release
-
-#### Prerequisites
-
-- Naver Developers API Key (Client ID and Secret)
-- Node.js 18 or higher
-- NPM 8 or higher
-- Docker (optional, for container deployment)
-
-#### Getting API Keys
-
-1. Visit [Naver Developers](https://developers.naver.com/apps/#/register)
-2. Click "Register Application"
-3. Enter application name and select ALL of the following APIs:
-   - Search (for blog, news, book search, etc.)
-   - DataLab (Search Trends)
-   - DataLab (Shopping Insight)
-4. Set the obtained Client ID and Client Secret as environment variables
-
-## Tool Details
-
-### Available tools:
-
-#### 🕐 Time & Context Tools
-
-- **get_current_korean_time**: Get current Korean time (KST) with comprehensive date/time information. Essential for understanding "today", "now", or "current" context in Korean timezone. Always use this tool when temporal context is needed for searches or analysis.
-
-#### 🆕 Category Search
-
-- **find_category**: Category search tool - No more need to manually check category numbers via URL for trend and shopping insight searches. The LLM will find it out as you say.
-
-#### Search Tools
-
-- **search_webkr**: Search Naver web documents
-- **search_news**: Search Naver news
-- **search_blog**: Search Naver blogs
-- **search_cafearticle**: Search Naver cafe articles
-- **search_shop**: Search Naver shopping
-- **search_image**: Search Naver images
-- **search_kin**: Search Naver KnowledgeiN
-- **search_book**: Search Naver books
-- **search_encyc**: Search Naver encyclopedia
-- **search_academic**: Search Naver academic papers
-- **search_local**: Search Naver local places
-
-#### DataLab Tools
-
-- **datalab_search**: Analyze search term trends
-- **datalab_shopping_category**: Analyze shopping category trends
-- **datalab_shopping_by_device**: Analyze shopping trends by device
-- **datalab_shopping_by_gender**: Analyze shopping trends by gender
-- **datalab_shopping_by_age**: Analyze shopping trends by age group
-- **datalab_shopping_keywords**: Analyze shopping keyword trends
-- **datalab_shopping_keyword_by_device**: Analyze shopping keyword trends by device
-- **datalab_shopping_keyword_by_gender**: Analyze shopping keyword trends by gender
-- **datalab_shopping_keyword_by_age**: Analyze shopping keyword trends by age group
-
-#### Complete Category List:
-
-For a complete list of category codes, you can download from Naver Shopping Partner Center or extract them by browsing Naver Shopping categories.
-
-### 🎯 Business Use Cases & Scenarios
-
-#### 🛍️ E-commerce Market Research
-
-```javascript
-// Fashion trend discovery
-find_category("fashion") → Check top fashion categories and codes
-datalab_shopping_category → Analyze seasonal fashion trends
-datalab_shopping_age → Identify fashion target demographics
-datalab_shopping_keywords → Compare "dress" vs "jacket" vs "coat"
-```
-
-#### 📱 Digital Marketing Strategy
-
-```javascript
-// Beauty industry analysis
-find_category("cosmetics") → Find beauty categories
-datalab_shopping_gender → 95% female vs 5% male shoppers
-datalab_shopping_device → Mobile dominance in beauty shopping
-datalab_shopping_keywords → "tint" vs "lipstick" keyword performance
-```
-
-#### 🏢 Business Intelligence & Competitive Analysis
-
-```javascript
-// Tech product insights
-find_category("smartphone") → Check electronics categories
-datalab_shopping_category → Track iPhone vs Galaxy trends
-datalab_shopping_age → 20-30s as main smartphone buyers
-datalab_shopping_device → PC vs mobile shopping behavior
-```
-
-#### 📊 Seasonal Business Planning
-
-```javascript
-// Holiday shopping analysis
-find_category("gift") → Gift categories
-datalab_shopping_category → Black Friday, Christmas trends
-datalab_shopping_keywords → "Mother's Day gift" vs "birthday gift"
-datalab_shopping_age → Age-based gift purchasing patterns
-```
-
-#### 🎯 Customer Persona Development
-
-```javascript
-// Fitness market analysis
-find_category("exercise") → Sports/fitness categories
-datalab_shopping_gender → Male vs female fitness spending
-datalab_shopping_age → Primary fitness demographics (20-40s)
-datalab_shopping_keywords → "home workout" vs "gym" trend analysis
-```
-
-### 📈 Advanced Analysis Scenarios
-
-#### Market Entry Strategy
-
-1. **Category Discovery**: Use `find_category` to explore market segments
-2. **Trend Analysis**: Identify growing vs declining categories
-3. **Demographic Targeting**: Age/gender analysis for customer targeting
-4. **Competitive Intelligence**: Keyword performance comparison
-5. **Device Strategy**: Mobile vs PC shopping optimization
-
-#### Product Launch Planning
-
-1. **Market Validation**: Category growth trends and seasonality
-2. **Target Customers**: Demographic analysis for product positioning
-3. **Marketing Channels**: Device preferences for advertising strategy
-4. **Competitive Landscape**: Keyword competition and opportunities
-5. **Pricing Strategy**: Category performance and price correlation
-
-#### Performance Monitoring
-
-1. **Category Health**: Monitor product category trends
-2. **Keyword Tracking**: Track brand and product keyword performance
-3. **Demographic Shifts**: Monitor changing customer demographics
-4. **Seasonal Patterns**: Plan inventory and marketing campaigns
-5. **Competitive Benchmarking**: Compare performance against category averages
-
-### Quick Reference: Popular Category Codes
-
-| Category            | Code     | Korean        |
-| ------------------- | -------- | ------------- |
-| Fashion/Clothing    | 50000000 | 패션의류      |
-| Cosmetics/Beauty    | 50000002 | 화장품/미용   |
-| Digital/Electronics | 50000003 | 디지털/가전   |
-| Sports/Leisure      | 50000004 | 스포츠/레저   |
-| Food/Beverages      | 50000008 | 식품/음료     |
-| Health/Medical      | 50000009 | 건강/의료용품 |
-
-💡 **Tip**: Use `find_category` with fuzzy searches like "beauty", "fashion", "electronics" to easily find categories.
-
-## Installation
-
-### Method 1: NPX Installation (Recommended)
-
-The easiest way to use this MCP server is through NPX. For detailed package information, see the [NPM package page](https://www.npmjs.com/package/@isnow890/naver-search-mcp).
-
-#### Claude Desktop Configuration
-
-Add to Claude Desktop config file (`%APPDATA%\Claude\claude_desktop_config.json` on Windows, `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS/Linux):
-
-```json
-{
-  "mcpServers": {
-    "naver-search": {
-      "command": "npx",
-      "args": ["-y", "@isnow890/naver-search-mcp"],
-      "env": {
-        "NAVER_CLIENT_ID": "your_client_id",
-        "NAVER_CLIENT_SECRET": "your_client_secret"
-      }
-    }
-  }
-}
-```
-
-#### Cursor AI Configuration
-
-Add to `mcp.json`:
-
-```json
-{
-  "mcpServers": {
-    "naver-search": {
-      "command": "npx",
-      "args": ["-y", "@isnow890/naver-search-mcp"],
-      "env": {
-        "NAVER_CLIENT_ID": "your_client_id",
-        "NAVER_CLIENT_SECRET": "your_client_secret"
-      }
-    }
-  }
-}
-```
-
-### Method 2: Local Installation
-
-For local development or custom modifications:
-
-#### Step 1: Download and Build Source Code
-
-##### Clone with Git
+## 0) Clone
 
 ```bash
-git clone https://github.com/isnow890/naver-search-mcp.git
+git clone https://github.com/wookja-0/naver-search-mcp.git
 cd naver-search-mcp
-npm install
-npm run build
 ```
 
-##### Or Download ZIP File
-
-1. Download the latest version from [GitHub Releases](https://github.com/isnow890/naver-search-mcp/releases)
-2. Extract the ZIP file to your desired location
-3. Navigate to the extracted folder in terminal:
+## 1) 환경 변수
 
 ```bash
-cd /path/to/naver-search-mcp
-npm install
-npm run build
+# 컨테이너 레지스트리 (예: ghcr.io/org, harbor.example.com/team 등)
+export REGISTRY="__YOUR_REGISTRY__/__YOUR_PROJECT__"
+
+# 이미지 태그 (원하면 변경)
+export IMAGE_BASE="$REGISTRY/mcp-server:v1.0"
+export IMAGE_SSE="$REGISTRY/mcp-server:sse-proxy"
 ```
 
-⚠️ **Important**: You must run `npm run build` after installation to generate the `dist` folder that contains the compiled JavaScript files.
+## 2) Docker 이미지 빌드 & 푸시
 
-#### Step 2: Claude Desktop Configuration
-
-After building, you'll need the following information:
-
-- **NAVER_CLIENT_ID**: Client ID from Naver Developers
-- **NAVER_CLIENT_SECRET**: Client Secret from Naver Developers
-- **Installation Path**: Absolute path to the downloaded folder
-
-##### Windows Configuration
-
-Add to Claude Desktop config file (`%APPDATA%\Claude\claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "naver-search": {
-      "type": "stdio",
-      "command": "cmd",
-      "args": [
-        "/c",
-        "node",
-        "C:\\path\\to\\naver-search-mcp\\dist\\src\\index.js"
-      ],
-      "cwd": "C:\\path\\to\\naver-search-mcp",
-      "env": {
-        "NAVER_CLIENT_ID": "your-naver-client-id",
-        "NAVER_CLIENT_SECRET": "your-naver-client-secret"
-      }
-    }
-  }
-}
-```
-
-##### macOS/Linux Configuration
-
-Add to Claude Desktop config file (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "naver-search": {
-      "type": "stdio",
-      "command": "node",
-      "args": ["/path/to/naver-search-mcp/dist/src/index.js"],
-      "cwd": "/path/to/naver-search-mcp",
-      "env": {
-        "NAVER_CLIENT_ID": "your-naver-client-id",
-        "NAVER_CLIENT_SECRET": "your-naver-client-secret"
-      }
-    }
-  }
-}
-```
-
-##### Path Configuration Important Notes
-
-⚠️ **Important**: You must change the following paths in the above configuration to your actual installation paths:
-
-- **Windows**: Change `C:\\path\\to\\naver-search-mcp` to your actual downloaded folder path
-- **macOS/Linux**: Change `/path/to/naver-search-mcp` to your actual downloaded folder path
-- **Build Path**: Make sure the path points to `dist/src/index.js` (not just `index.js`)
-
-Finding your path:
+### 2-1. MCP 서버 베이스 이미지 (v1.0)
 
 ```bash
-# Check current location
-pwd
-
-# Absolute path examples
-# Windows: C:\Users\username\Downloads\naver-search-mcp
-# macOS: /Users/username/Downloads/naver-search-mcp
-# Linux: /home/username/Downloads/naver-search-mcp
+docker build -t "$IMAGE_BASE" . --network host
+docker push "$IMAGE_BASE"
 ```
 
-#### Step 3: Restart Claude Desktop
+### 2-2. SSE 프록시 이미지 (stdio ↔ SSE 변환 포함)
 
-After completing the configuration, completely close and restart Claude Desktop to activate the Naver Search MCP server.
+```bash
+docker build -f Dockerfile.sse -t "$IMAGE_SSE" . --network host
+docker push "$IMAGE_SSE"
+```
+
+> `Dockerfile.sse`는 컨테이너에 `mcp-proxy`를 설치하고 `docker-entrypoint.sh`로 **/sse**, **/status**를 노출합니다.
+
+## 3) Kubernetes 배포
+
+> 아래 예시는 네임스페이스를 `dmp-poc`로 가정합니다. 환경에 맞게 변경하세요.
+
+### 3-1. (선택) 로그 PVC
+
+```bash
+kubectl -n dmp-poc apply -f manifest/pvc.yaml
+```
+
+### 3-2. 서버용 Secret (Naver Developers 키)
+
+```bash
+kubectl -n dmp-poc create secret generic naver-api-keys   --from-literal=NAVER_CLIENT_ID='<your-client-id>'   --from-literal=NAVER_CLIENT_SECRET='<your-client-secret>'
+```
+
+### 3-3. Deployment / Service
+
+```bash
+kubectl -n dmp-poc apply -f manifest/deployment.yaml
+kubectl -n dmp-poc apply -f manifest/service.yaml
+
+# 배포 후 실제 이미지로 교체(컨테이너 이름: sse-proxy)
+kubectl -n dmp-poc set image deploy/mcp-server sse-proxy="$IMAGE_SSE"
+
+kubectl -n dmp-poc rollout status deploy/mcp-server
+```
+
+> 매니페스트의 리소스 이름이 `mcp-server`인지 확인하세요. (Deployment/Service 메타데이터 name)
+
+## 4) 동작 확인
+
+```bash
+# 상태 확인
+kubectl -n dmp-poc port-forward svc/mcp-server 8080:8080
+curl http://127.0.0.1:8080/status     # JSON 응답이면 OK
+```
+
+로그:
+```bash
+# 프록시 표준로그
+kubectl -n dmp-poc logs deploy/mcp-server -f
+
+# 앱 로그(PVC 사용 시)
+# 예) NFS 경로에 app.log 생성/증가
+```
+
+## 5) 백엔드(클라이언트) 연결 예시
+
+```python
+from langchain_mcp_adapters.client import MultiServerMCPClient
+
+mcp_client = MultiServerMCPClient(
+    {
+        "naver-search-mcp": {
+            "transport": "sse",
+            "url": "http://mcp-server.dmp-poc.svc.cluster.local:8080/sse"
+        }
+    }
+)
+```
+
+> Smithery 전용 경로(`/@org/server/mcp?...`)는 사용하지 않습니다.  
+> 서버 컨테이너에는 `NAVER_CLIENT_ID/SECRET`(K8s Secret)이 주입되어 네이버 API를 호출합니다.
+
+## 6) 트러블슈팅(짧게)
+
+- **/status 200 아님** → `kubectl logs`로 프록시/앱 로그 확인  
+- **연결됐는데 결과 없음** → `transport="sse"` & URL `/sse` 확인  
+- **로그 파일 안 쌓임** → PVC 권한(fsGroup)·마운트 경로 점검
 
 ---
 
-## Alternative Installation Methods
+**License:** MIT  
 
-### Method 3: Legacy Smithery Installation (Only for v1.0.30 and below)
-
-⚠️ **Note**: This method only works for versions 1.0.30 and below due to platform compatibility issues.
-
-#### For Claude Desktop:
-```bash
-npx -y @smithery/cli@latest install @isnow890/naver-search-mcp --client claude
-```
-
-#### For other AI clients:
-```bash
-# Cursor
-npx -y @smithery/cli@latest install @isnow890/naver-search-mcp --client cursor
-
-# Windsurf
-npx -y @smithery/cli@latest install @isnow890/naver-search-mcp --client windsurf
-
-# Cline
-npx -y @smithery/cli@latest install @isnow890/naver-search-mcp --client cline
-```
-
-### Method 4: Docker Installation
-
-For containerized deployment:
-
-```bash
-docker run -i --rm \
-  -e NAVER_CLIENT_ID=your_client_id \
-  -e NAVER_CLIENT_SECRET=your_client_secret \
-  mcp/naver-search
-```
-
-Docker configuration for Claude Desktop:
-
-```json
-{
-  "mcpServers": {
-    "naver-search": {
-      "command": "docker",
-      "args": [
-        "run",
-        "-i",
-        "--rm",
-        "-e",
-        "NAVER_CLIENT_ID=your_client_id",
-        "-e",
-        "NAVER_CLIENT_SECRET=your_client_secret",
-        "mcp/naver-search"
-      ]
-    }
-  }
-}
-```
-
-## Build
-
-Docker build:
-
-```bash
-docker build -t mcp/naver-search .
-```
-
-## License
-
-MIT License
