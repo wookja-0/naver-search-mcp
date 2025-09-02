@@ -1,4 +1,4 @@
-FROM ${BASE_IMAGE}
+FROM ${IMAGE_BASE}
 
 USER root
 WORKDIR /opt/proxy
