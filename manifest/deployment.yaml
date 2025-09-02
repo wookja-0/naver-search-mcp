@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mcp-server
+  namespace: dmp-poc
+  labels: { app: mcp-server }
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: mcp-server }
+  template:
+    metadata:
+      labels: { app: mcp-server }
+    spec:
+      securityContext:
+        fsGroup: 2000   # NFS(RWX) 쓰기권한 문제시 조정 가능
+      containers:
+        - name: mcp-proxy
+          image: {}  # 이미지 변경
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - secretRef:
+                name: naver-mcp-secrets
+          env:
+            - name: BRIDGE_PORT
+              value: "8080"
+            - name: LOG_DIR
+              value: "/var/log/naver-mcp"
+          ports:
+            - { name: http, containerPort: 8080 }
+          volumeMounts:
+            - { name: logs, mountPath: /var/log/naver-mcp }
+          resources:
+            requests: { cpu: "100m", memory: "128Mi" }
+            limits:   { cpu: "500m", memory: "512Mi" }
+      volumes:
+        - name: logs
+          persistentVolumeClaim:
+            claimName: naver-mcp-logs
